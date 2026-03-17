@@ -1,0 +1,11 @@
+[package]
+name = "volt"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "volt"
+path = "rust-logic/main.rs"
+
+[dependencies]
+image = "0.24"
