@@ -4,8 +4,13 @@
   "description": "Pixel-by-pixel SVG Generator",
   "version": "1.0.0",
   "publisher": "BranchoCEO",
+  "icon": "logo.ico",
   "engines": {
     "vscode": "^1.80.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BranchoCEO/volt.git"
   },
   "categories": [
     "Other"
