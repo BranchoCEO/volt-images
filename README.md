@@ -14,3 +14,5 @@ In your terminal enter specify the file directory, e.g cd C:\Users\John\Document
   <img src="https://github.com/user-attachments/assets/2644a6aa-1673-42a1-a772-8b752944d235">
 </p>
 
+<h3 align="left">3.</h3>
+![Screenshot 2026-03-18 191625](https://github.com/user-attachments/assets/a212bf2b-8bbe-45fb-84c6-7d00b9c0820b)
