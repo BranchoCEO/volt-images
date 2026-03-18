@@ -1,6 +1,6 @@
 {
-  "name": "volt",
-  "displayName": "volt",
+  "name": "volt-images",
+  "displayName": "volt-images",
   "description": "Pixel-by-pixel SVG Generator",
   "version": "1.0.0",
   "publisher": "BranchoCEO",
@@ -34,5 +34,8 @@
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.80.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vscode/vsce": "^3.7.1"
   }
 }
