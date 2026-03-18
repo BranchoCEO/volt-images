@@ -1,1 +1,6 @@
-*.mk linguist-vendored
+
+**/Makefile linguist-documentation=true
+**/*.mk linguist-documentation=true
+
+node_modules/** linguist-documentation=true
+target/** linguist-documentation=true
