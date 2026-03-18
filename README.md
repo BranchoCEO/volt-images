@@ -10,5 +10,7 @@ Install "volt-images" on VS code or https://marketplace.visualstudio.com/items?i
 <p align="left">
 In your terminal enter specify the file directory, e.g cd C:\Users\John\Documents\OneDrive\Images
 </p>
-![image (2)](https://github.com/user-attachments/assets/2644a6aa-1673-42a1-a772-8b752944d235)
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/2644a6aa-1673-42a1-a772-8b752944d235">
+</p>
 
