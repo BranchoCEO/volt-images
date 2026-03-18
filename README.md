@@ -15,4 +15,11 @@ In your terminal enter specify the file directory, e.g cd C:\Users\John\Document
 </p>
 
 <h3 align="left">3.</h3>
-![Screenshot 2026-03-18 191625](https://github.com/user-attachments/assets/a212bf2b-8bbe-45fb-84c6-7d00b9c0820b)
+<p align="left">
+Run, e.g volt "image.png" from the file directory
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a212bf2b-8bbe-45fb-84c6-7d00b9c0820b" width="500">
+</p>
+
+<h2 align="center">How to use in a HTML script</h2>
