@@ -3,4 +3,5 @@
 <p align="left">
 Install "volt-images" on VS code or https://marketplace.visualstudio.com/items?itemName=BranchoCEO.volt-images
 </p>
-![Banner](https://i.postimg.cc/9fNf0Dxy/Screenshot-2024-05-15-201642.png)
+
+![Screenshot 2026-03-18 185120](https://github.com/user-attachments/assets/9d885ffd-3fdd-4081-81bf-011a8dee3ac9)
