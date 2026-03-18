@@ -3,7 +3,7 @@
   "displayName": "volt",
   "description": "Pixel-by-pixel SVG Generator",
   "version": "1.0.0",
-  "publisher": "developer",
+  "publisher": "BranchoCEO",
   "engines": {
     "vscode": "^1.80.0"
   },
