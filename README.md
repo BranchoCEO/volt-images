@@ -34,3 +34,11 @@ Run, e.g volt "image.png" from the file directory
 <p align="left">
   <img src="https://github.com/user-attachments/assets/38618051-71bf-4873-a2a8-557f801b19eb">
 </p>
+
+<h3 align="left">2.</h3>
+<p align="left">In your app.js, make SURE to include something like"const response = await fetch('image.txt');"<p>
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/f2e804a5-5159-4454-a246-5c027e6a5e63" width="800">
+</p>
+
+<h2 align="center">⚠️MAKE SURE YOU HAVE THE .TXT FILE IN YOUR PROJECT FOLDER⚠️</h2>
