@@ -9,3 +9,4 @@ path = "rust-logic/main.rs"
 
 [dependencies]
 image = "0.24"
+rayon = "1"
