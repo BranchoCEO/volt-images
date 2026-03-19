@@ -1,8 +1,8 @@
 {
   "name": "volt-images",
   "displayName": "volt-images",
-  "description": "Pixel-by-pixel SVG Generator",
-  "version": "1.0.0",
+  "description": "Alternative to hosting images from the web",
+  "version": "1.0.1",
   "publisher": "BranchoCEO",
   "icon": "logo.ico",
   "engines": {
@@ -39,3 +39,4 @@
     "@vscode/vsce": "^3.7.1"
   }
 }
+
