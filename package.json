@@ -2,7 +2,7 @@
   "name": "volt-images",
   "displayName": "volt-images",
   "description": "Alternative to hosting images from the web",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "publisher": "BranchoCEO",
   "icon": "logo.ico",
   "engines": {
