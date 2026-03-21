@@ -36,23 +36,18 @@ fn write_hex(buf: &mut Vec<u8>, v: u8) {
 }
 
 fn digits(n: usize) -> usize {
-    if n == 0 { return 1; }
-    let mut d = 0;
-    let mut v = n;
-    while v > 0 { v /= 10; d += 1; }
-    d
+    if n == 0 { 1 } else { n.ilog10() as usize + 1 }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: volt <path_to_image>");
+        eprintln!("Usage: volt <path_to_image>");
         return;
     }
 
     let raw_arg = args[1].trim_matches('"').to_string();
 
-    // Resolve relative paths against the current working directory
     let img_path: PathBuf = {
         let p = PathBuf::from(&raw_arg);
         if p.is_absolute() {
@@ -65,8 +60,8 @@ fn main() {
     let img = match image::open(&img_path) {
         Ok(i) => i,
         Err(e) => {
-            println!("Error: Could not open image: {}", e);
-            println!("Looked for file at: {}", img_path.display());
+            eprintln!("Error: Could not open image: {}", e);
+            eprintln!("Looked for file at: {}", img_path.display());
             return;
         }
     };
@@ -81,9 +76,8 @@ fn main() {
     let rgba = img.to_rgba8();
     let raw = rgba.as_raw();
 
-    // Write the output next to the image, not relative to cwd
     let txt_path = img_path.with_extension("txt");
-    let txt_name = txt_path.to_str().unwrap();
+    let txt_name = txt_path.to_str().expect("Output path is not valid UTF-8");
 
     println!("Processing {}...", img_path.display());
 
