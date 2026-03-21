@@ -43,7 +43,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         eprintln!("Usage: volt <path_to_image>");
-        return;
+        std::process::exit(1);
     }
 
     let raw_arg = args[1].trim_matches('"').to_string();
@@ -62,7 +62,7 @@ fn main() {
         Err(e) => {
             eprintln!("Error: Could not open image: {}", e);
             eprintln!("Looked for file at: {}", img_path.display());
-            return;
+            std::process::exit(1);
         }
     };
 
@@ -113,7 +113,7 @@ fn main() {
     let txt_file = File::create(txt_name).expect("Failed to create text file");
     let mut writer = BufWriter::with_capacity(1024 * 1024, txt_file);
     for row in rows {
-        writer.write_all(&row).unwrap();
+        writer.write_all(&row).expect("Failed to write output file");
     }
 
     println!("Finished! Created: {}", txt_name);
