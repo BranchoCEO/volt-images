@@ -180,5 +180,4 @@ function render(buf) {
 }
 
 main();
-<pre>
 <h2 align="center">⚠️MAKE SURE YOU HAVE THE .TXT FILE IN YOUR PROJECT FOLDER⚠️</h2>
