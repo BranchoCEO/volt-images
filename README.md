@@ -26,7 +26,7 @@ volt "images.png"
 <h2 align="center">How to use in a HTML script</h2>
 
 <p align="left">Make sure your files look like this<p>
-<p align="center">
+<p align="left">
   <img src="https://github.com/user-attachments/assets/c272d669-a416-4df8-ab76-d5854bf6c2e5" width="400" alt="Project Files">
 </p>
 
