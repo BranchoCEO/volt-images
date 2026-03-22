@@ -26,9 +26,10 @@ volt "images.png"
 <h2 align="center">How to use in a HTML script</h2>
 
 <p align="left">Make sure your files look like this<p>
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/452d4333-9815-4379-b23d-8c10bb79c687">
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c272d669-a416-4df8-ab76-d5854bf6c2e5" width="400" alt="Project Files">
 </p>
+
 
 <h3 align="left">1.</h3>
 <p align="left">Make sure to include "<script src="app.js"></script>"<p>
@@ -182,4 +183,4 @@ function render(buf) {
 main();
 </pre>
 
-<h2 align="center">⚠️MAKE SURE YOU HAVE THE .TXT FILE IN YOUR PROJECT FOLDER⚠️</h2>
+<h2 align="center">⚠️MAKE SURE YOU HAVE THE .VOLT FILE IN YOUR PROJECT FOLDER⚠️</h2>
