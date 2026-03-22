@@ -32,7 +32,7 @@ volt "images.png"
 
 <h3 align="left">1.</h3>
 <p align="left">Make sure to include "<script src="app.js"></script>"<p>
-
+<pre>
  &lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
@@ -53,7 +53,7 @@ volt "images.png"
 <h3 align="left">2.</h3>
 <p align="left">In your app.js, make SURE to include something like"const response = await fetch('image.txt');"<p>
 <pre>
-  const canvas = document.getElementById(&#39;canvas&#39;);
+    const canvas = document.getElementById(&#39;canvas&#39;);
 const ctx    = canvas.getContext(&#39;2d&#39;);
 const info   = document.getElementById(&#39;info&#39;);
 const error  = document.getElementById(&#39;error&#39;);
@@ -180,4 +180,6 @@ function render(buf) {
 }
 
 main();
+</pre>
+
 <h2 align="center">⚠️MAKE SURE YOU HAVE THE .TXT FILE IN YOUR PROJECT FOLDER⚠️</h2>
