@@ -32,7 +32,7 @@ volt "images.png"
 
 <h3 align="left">1.</h3>
 <p align="left">Make sure to include "<script src="app.js"></script>"<p>
-<pre>
+
  &lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
