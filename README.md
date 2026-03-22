@@ -12,7 +12,7 @@ Install "volt-images" on VS code or https://marketplace.visualstudio.com/items?i
 In your terminal enter specify the file directory, e.g cd C:\Users\John\Documents\OneDrive\Images
 </p>
 <pre>
-  cd C:\Users\John\Documents\OneDrive\Images
+cd C:\Users\John\Documents\OneDrive\Images
 </pre>
 
 <h3 align="left">3.</h3>
@@ -33,20 +33,21 @@ volt "images.png"
 <h3 align="left">1.</h3>
 <p align="left">Make sure to include "<script src="app.js"></script>"<p>
 <pre>
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <style>
+ &lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;style&gt;
     * { margin: 0; padding: 0; }
     canvas { display: block; }
-  </style>
-</head>
-<body>
-  <canvas id="canvas"></canvas>
-  <script src="app.js"></script>
-</body>
-</html>
+  &lt;/style&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;canvas id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+  &lt;script src=&quot;app.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
 </pre>
 
 <h3 align="left">2.</h3>
