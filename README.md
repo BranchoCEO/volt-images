@@ -11,17 +11,17 @@ Install "volt-images" on VS code or https://marketplace.visualstudio.com/items?i
 <p align="left">
 In your terminal enter specify the file directory, e.g cd C:\Users\John\Documents\OneDrive\Images
 </p>
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/2644a6aa-1673-42a1-a772-8b752944d235">
-</p>
+<pre>
+  cd C:\Users\John\Documents\OneDrive\Images
+</pre>
 
 <h3 align="left">3.</h3>
 <p align="left">
 Run, e.g volt "image.png" from the file directory
 </p>
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/a212bf2b-8bbe-45fb-84c6-7d00b9c0820b" width="500">
-</p>
+<pre>
+volt "images.png"
+</pre>
 
 <h2 align="center">How to use in a HTML script</h2>
 
@@ -32,9 +32,22 @@ Run, e.g volt "image.png" from the file directory
 
 <h3 align="left">1.</h3>
 <p align="left">Make sure to include "<script src="app.js"></script>"<p>
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/38618051-71bf-4873-a2a8-557f801b19eb">
-</p>
+<pre>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
+</pre>
 
 <h3 align="left">2.</h3>
 <p align="left">In your app.js, make SURE to include something like"const response = await fetch('image.txt');"<p>
