@@ -1,42 +1,115 @@
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
-use image::GenericImageView;
-use rayon::prelude::*;
+use image::{GenericImageView, RgbaImage};
 
-static HEX_LUT: [[u8; 2]; 256] = {
-    const H: &[u8] = b"0123456789ABCDEF";
-    let mut t = [[0u8; 2]; 256];
-    let mut i = 0usize;
-    while i < 256 {
-        t[i][0] = H[i >> 4];
-        t[i][1] = H[i & 0xF];
-        i += 1;
-    }
-    t
-};
-
-#[inline(always)]
-fn write_dec(buf: &mut Vec<u8>, v: usize, width: usize) {
-    let start = buf.len();
-    buf.resize(start + width, b'0');
-    let mut n = v;
-    for i in (0..width).rev() {
-        buf[start + i] = b'0' + (n % 10) as u8;
-        n /= 10;
-    }
-}
+const MAGIC: &[u8]    = b"volt";
+const VERSION: u8     = 0x01;
+const OP_FILL_BG: u8  = 0x01;
+const OP_RECT: u8     = 0x02;
+const OP_RASTER: u8   = 0x06;
+const OP_EOF: u8      = 0xFF;
+const FLAG_ALPHA: u8  = 0x01;
+const FLAG_PALETTE: u8 = 0x02;
+const PAL_GLOBAL: u8  = 0x00;
+const PAL_RGB: u8     = 0x03;
+const PAL_RGBA: u8    = 0x04;
+const MIN_RECT_AREA: usize = 14;
 
 #[inline(always)]
-fn write_hex(buf: &mut Vec<u8>, v: u8) {
-    let h = HEX_LUT[v as usize];
-    buf.push(h[0]);
-    buf.push(h[1]);
+fn get_px(raw: &[u8], x: usize, y: usize, w: usize) -> [u8; 4] {
+    let i = (y * w + x) * 4;
+    [raw[i], raw[i + 1], raw[i + 2], raw[i + 3]]
 }
 
-fn digits(n: usize) -> usize {
-    if n == 0 { 1 } else { n.ilog10() as usize + 1 }
+fn find_background(raw: &[u8]) -> [u8; 4] {
+    let mut counts: HashMap<[u8; 4], u32> = HashMap::new();
+    for chunk in raw.chunks_exact(4) {
+        *counts.entry([chunk[0], chunk[1], chunk[2], chunk[3]]).or_insert(0) += 1;
+    }
+    counts.into_iter().max_by_key(|(_, v)| *v).map(|(k, _)| k).unwrap()
+}
+
+fn extract_palette(raw: &[u8]) -> Option<Vec<[u8; 4]>> {
+    let mut seen: HashSet<[u8; 4]> = HashSet::new();
+    for chunk in raw.chunks_exact(4) {
+        seen.insert([chunk[0], chunk[1], chunk[2], chunk[3]]);
+        if seen.len() > 255 {
+            return None;
+        }
+    }
+    Some(seen.into_iter().collect())
+}
+
+fn detect_rectangles(
+    raw: &[u8],
+    covered: &mut Vec<bool>,
+    w: usize,
+    h: usize,
+) -> Vec<(u16, u16, u16, u16, [u8; 4])> {
+    let mut rects = Vec::new();
+
+    for y in 0..h {
+        for x in 0..w {
+            if covered[y * w + x] {
+                continue;
+            }
+            let color = get_px(raw, x, y, w);
+
+            let mut rw = 0;
+            while x + rw < w && !covered[y * w + x + rw] && get_px(raw, x + rw, y, w) == color {
+                rw += 1;
+            }
+
+            let mut rh = 1;
+            let mut cur_w = rw;
+            while y + rh < h {
+                let mut row_w = 0;
+                while row_w < cur_w {
+                    let nx = x + row_w;
+                    if covered[(y + rh) * w + nx] || get_px(raw, nx, y + rh, w) != color {
+                        break;
+                    }
+                    row_w += 1;
+                }
+                if row_w == 0 {
+                    break;
+                }
+                cur_w = cur_w.min(row_w);
+                rh += 1;
+            }
+            rw = cur_w;
+
+            if rw * rh < MIN_RECT_AREA {
+                continue;
+            }
+
+            for dy in 0..rh {
+                for dx in 0..rw {
+                    covered[(y + dy) * w + x + dx] = true;
+                }
+            }
+            rects.push((x as u16, y as u16, rw as u16, rh as u16, color));
+        }
+    }
+    rects
+}
+
+fn push_color(
+    out: &mut Vec<u8>,
+    color: [u8; 4],
+    has_alpha: bool,
+    pal_map: &Option<HashMap<[u8; 4], u8>>,
+) {
+    if let Some(pm) = pal_map {
+        out.push(*pm.get(&color).unwrap_or(&0));
+    } else if has_alpha {
+        out.extend_from_slice(&color);
+    } else {
+        out.extend_from_slice(&color[..3]);
+    }
 }
 
 fn main() {
@@ -47,21 +120,20 @@ fn main() {
     }
 
     let raw_arg = args[1].trim_matches('"').to_string();
-
     let img_path: PathBuf = {
         let p = PathBuf::from(&raw_arg);
         if p.is_absolute() {
             p
         } else {
-            env::current_dir().expect("Cannot read current directory").join(p)
+            env::current_dir().expect("Cannot read cwd").join(p)
         }
     };
 
-    let img = match image::open(&img_path) {
-        Ok(i) => i,
+    let img: RgbaImage = match image::open(&img_path) {
+        Ok(i) => i.to_rgba8(),
         Err(e) => {
-            eprintln!("Error: Could not open image: {}", e);
-            eprintln!("Looked for file at: {}", img_path.display());
+            eprintln!("Error: {}", e);
+            eprintln!("Looked for: {}", img_path.display());
             std::process::exit(1);
         }
     };
@@ -69,52 +141,131 @@ fn main() {
     let (width, height) = img.dimensions();
     let w = width as usize;
     let h = height as usize;
+    let raw = img.as_raw();
 
-    let x_digits = digits(w.saturating_sub(1));
-    let y_digits = digits(h.saturating_sub(1));
+    println!("Encoding {}x{} image...", w, h);
 
-    let rgba = img.to_rgba8();
-    let raw = rgba.as_raw();
+    let has_alpha = raw.chunks_exact(4).any(|px| px[3] < 255);
+    let palette    = extract_palette(raw);
+    let bg_color   = find_background(raw);
 
-    let txt_path = img_path.with_extension("txt");
-    let txt_name = txt_path.to_str().expect("Output path is not valid UTF-8");
+    let bg_count: usize = raw.chunks_exact(4)
+        .filter(|px| [px[0], px[1], px[2], px[3]] == bg_color)
+        .count();
+    let use_bg_fill = bg_count > w * h / 4;
 
-    println!("Processing {}...", img_path.display());
-
-    let rows: Vec<Vec<u8>> = (0..h)
-        .into_par_iter()
-        .map(|y| {
-            let line_len = x_digits + y_digits + 9;
-            let mut row_buf = Vec::with_capacity(w * line_len);
-
-            let row_offset = y * w * 4;
+    let mut covered = vec![false; w * h];
+    if use_bg_fill {
+        for y in 0..h {
             for x in 0..w {
-                let idx = row_offset + x * 4;
-                let r = raw[idx];
-                let g = raw[idx + 1];
-                let b = raw[idx + 2];
-                let a = raw[idx + 3];
-
-                if a == 0 { continue; }
-
-                write_dec(&mut row_buf, x, x_digits);
-                row_buf.push(b' ');
-                write_dec(&mut row_buf, y, y_digits);
-                row_buf.extend_from_slice(b" #");
-                write_hex(&mut row_buf, r);
-                write_hex(&mut row_buf, g);
-                write_hex(&mut row_buf, b);
-                row_buf.push(b'\n');
+                if get_px(raw, x, y, w) == bg_color {
+                    covered[y * w + x] = true;
+                }
             }
-            row_buf
-        })
-        .collect();
-
-    let txt_file = File::create(txt_name).expect("Failed to create text file");
-    let mut writer = BufWriter::with_capacity(1024 * 1024, txt_file);
-    for row in rows {
-        writer.write_all(&row).expect("Failed to write output file");
+        }
     }
 
-    println!("Finished! Created: {}", txt_name);
+    let rects = detect_rectangles(raw, &mut covered, w, h);
+    println!("Found {} rectangles", rects.len());
+
+    let pal_map: Option<HashMap<[u8; 4], u8>> = palette.as_ref().map(|pal| {
+        pal.iter().enumerate().map(|(i, &c)| (c, i as u8)).collect()
+    });
+
+    let mut out: Vec<u8> = Vec::new();
+
+    out.extend_from_slice(MAGIC);
+    out.push(VERSION);
+    out.extend_from_slice(&(w as u16).to_le_bytes());
+    out.extend_from_slice(&(h as u16).to_le_bytes());
+
+    let mut flags: u8 = 0;
+    if has_alpha          { flags |= FLAG_ALPHA; }
+    if palette.is_some()  { flags |= FLAG_PALETTE; }
+    out.push(flags);
+
+    if let Some(ref pal) = palette {
+        out.push(pal.len() as u8);
+        for &color in pal {
+            if has_alpha { out.extend_from_slice(&color); }
+            else         { out.extend_from_slice(&color[..3]); }
+        }
+    }
+
+    if use_bg_fill {
+        out.push(OP_FILL_BG);
+        push_color(&mut out, bg_color, has_alpha, &pal_map);
+    }
+
+    for &(rx, ry, rw, rh, color) in &rects {
+        out.push(OP_RECT);
+        out.extend_from_slice(&rx.to_le_bytes());
+        out.extend_from_slice(&ry.to_le_bytes());
+        out.extend_from_slice(&rw.to_le_bytes());
+        out.extend_from_slice(&rh.to_le_bytes());
+        push_color(&mut out, color, has_alpha, &pal_map);
+    }
+
+    let pal_type = if pal_map.is_some() { PAL_GLOBAL }
+                   else if has_alpha     { PAL_RGBA }
+                   else                  { PAL_RGB };
+
+    for y in 0..h {
+        let mut x = 0;
+        while x < w {
+            if covered[y * w + x] { x += 1; continue; }
+
+            let start_x = x;
+            while x < w && !covered[y * w + x] { x += 1; }
+            let block_w = x - start_x;
+
+            let mut rle: Vec<u8> = Vec::new();
+            let mut px = start_x;
+            while px < x {
+                let color = get_px(raw, px, y, w);
+                let mut count: usize = 1;
+                while (px + count) < x && count < 255
+                    && get_px(raw, px + count, y, w) == color
+                {
+                    count += 1;
+                }
+                rle.push(count as u8);
+                if let Some(ref pm) = pal_map {
+                    rle.push(*pm.get(&color).unwrap_or(&0));
+                } else if has_alpha {
+                    rle.extend_from_slice(&color);
+                } else {
+                    rle.extend_from_slice(&color[..3]);
+                }
+                px += count as usize;
+            }
+
+            out.push(OP_RASTER);
+            out.extend_from_slice(&(start_x as u16).to_le_bytes());
+            out.extend_from_slice(&(y as u16).to_le_bytes());
+            out.extend_from_slice(&(block_w as u16).to_le_bytes());
+            out.extend_from_slice(&1u16.to_le_bytes());
+            out.push(pal_type);
+            out.extend_from_slice(&(rle.len() as u32).to_le_bytes());
+            out.extend_from_slice(&rle);
+        }
+    }
+
+    out.push(OP_EOF);
+
+    let out_path = img_path.with_extension("volt");
+    let out_name = out_path.to_str().expect("Invalid output path");
+    let file = File::create(out_name).expect("Failed to create output file");
+    let mut writer = BufWriter::new(file);
+    writer.write_all(&out).expect("Failed to write output");
+
+    let orig_size = std::fs::metadata(&img_path).map(|m| m.len()).unwrap_or(0);
+    let volt_size = out.len() as u64;
+    println!(
+        "Done! {} bytes ({:.1}% of original {}B) -> {}",
+        volt_size,
+        if orig_size > 0 { volt_size as f64 / orig_size as f64 * 100.0 } else { 0.0 },
+        orig_size,
+        out_name
+    );
 }
